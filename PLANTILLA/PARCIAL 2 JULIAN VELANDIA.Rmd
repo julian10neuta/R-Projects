@@ -1,0 +1,284 @@
+---
+title: "PARCIAL # 2"
+author: "Julian Velandia"
+date: "`r Sys.Date()`"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    theme: darkly
+    css: estilo.css
+---
+
+
+# Desarrollo
+
+```{r echo=FALSE, message=FALSE}
+library(ggplot2)
+```
+
+## Primer punto
+
+***Enunciado 1: *** Una población de electores contiene 40% de republicanos y 60% de demócratas. Se publica que 30% de los republicanos y 70% de los demócratas están a favor de un tema de elección. 
+
+  a. Elabore un dataframe que resuma la información.
+  b. Suponga que una persona seleccionada al azar de esta población está a favor del tema en cuestión.   Encuentre la probabilidad condicional de que esta persona sea un demócrata.
+***Solución: ***
+```{r echo=FALSE,  fig.align="center", message=FALSE}
+## a = Republicano
+## b = A FAVOR
+
+p.republicano <- 0.4
+p.democrata <- 1 - p.republicano
+p.anb <- 0.3*p.republicano
+p.acnb <- p.democrata*0.7; p.acnb
+p.anbc <- p.republicano*0.7; p.anbc
+p.acbc <- p.democrata*0.3; p.acbc
+
+df <- data.frame(.=c("Republicano", "Democrata", "Total"), AFavor=c(p.anb, p.acnb, sum(p.anb, p.acnb)), NoAFavor = c(p.anbc, p.acbc, sum(p.anbc, p.acbc)), Total = c(0.3,0.7,1)); df
+
+```
+
+## Segundo punto
+
+***Enunciado 2: *** De los artículos producidos diariamente por una fábrica, 40% provienen de la línea I y 60% de la línea II. La línea I tiene un porcentaje de 8% de piezas defectuosas en tanto que la II tiene un porcentaje de 10%. 
+  a. Elabore un dataframe con la información del problema.
+  b. Si se escoge al azar una pieza de la producción diaria, encuentre la probabilidad de que no esté   defectuosa.
+
+***Solución: ***
+```{r echo=FALSE,  fig.align="center", message=FALSE}
+## a = Republicano
+## b = A FAVOR
+
+p.linea1 <- 0.4
+p.linea2 <- 1 - p.linea1
+p.AnB <- 0.08*p.linea1
+p.AcnB <- p.linea2*0.1
+p.AnBc <- p.linea1*0.92
+p.AcBc <- p.linea2*0.9
+
+df5 <- data.frame(.=c("Linea 1", "Linea 2", "Total"), Defectuoso=c(p.AnB, p.AcnB, sum(p.AnB, p.AcnB)), NoDefectuoso = c(p.AnBc, p.AcBc, sum(p.AnBc, p.AcBc)), Total = c(p.linea1,p.linea2,1)); df5
+
+```
+
+
+## Tercer punto
+
+***Enunciado 3: *** 3. Cuando el departamento de salud examinó pozos privados en un condado en busca de dos impurezas que comúnmente se hallan en el agua potable, se encontró que 20% de los pozos no tenían ninguna impureza,
+40% tenían la impureza A y 50% tenían la impureza B. (Obviamente, algunos tenían ambas impurezas.) Si un pozo de los existentes en el condado se escoge al azar,
+a. Encuentre la distribución de probabilidad para X, el número de impurezas halladas en el pozo y grafíquela.
+b. Encuentre la función de distribución acumulativa para x y con base en ella encuentre F(1)
+
+```{r echo=FALSE, fig.align="center"}
+x <- 0:2
+px <- c(0.2, 0.7, 0.1)
+Fx <- c(0.2, 0.9, 1.0)  # F(0), F(1), F(2)
+
+# Crear data frame
+df7 <- data.frame(x = x, px = px, Fx = Fx)
+
+# a) Distribución de probabilidad
+ggplot(df7, aes(x = factor(x), y = px)) +
+  geom_bar(stat = "identity", fill = "skyblue") +
+  labs(title = "Distribución de Probabilidad de X",
+       x = "Número de impurezas (X)", y = "P(X = x)")
+
+# b) Función de distribución acumulada
+ggplot(df7, aes(x = x, y = Fx)) +
+  geom_step(color = "darkgreen", size = 1.2) +
+  labs(title = "Función de Distribución Acumulada F(x)",
+       x = "x", y = "F(x)") +
+  ylim(0, 1)
+```
+
+## Cuarto punto
+
+***Enunciado 4: *** Una gasolinera opera dos bombas, cada una de las cuales puede bombear hasta 10,000 galones de gasolina en un mes. La cantidad total de gasolina bombeada en un mes es una variable aleatoria X (medida en 10,000 galones) con una función de densidad de probabilidad dada abajo.
+
+  a. Dibuje la función de densidad.
+  b  Encuentre F(x).
+  c. Encuentre P(0.5 ≤ X ≤ 1.2).
+
+***Solución: ***
+```{r echo=FALSE,  fig.align="center"}
+cat("a) Grafica de la función")
+
+f.x.4 <- function(x){
+  ifelse(x >= 0, ifelse(x <= 1, x, ifelse(x <= 1.5, 1,0)), 0)
+}
+x.4 <- seq(0,1.6, by = 0.01)
+y.4 <- sapply(x.4, f.x.4)
+
+
+
+df2 <- data.frame(x.4,y.4)
+ggplot(df2, aes(x = x.4, y = y.4)) +
+  geom_line(color = "maroon", size = 1) +
+  scale_x_continuous(expand = c(0, 0), limits = c(0, 1.6), breaks = seq(0, 1.6, by = 0.1)) +  # evitar espacio extra
+  scale_y_continuous(expand = c(0, 0), limits = c(0, max(df2$y.4)*1.1)) +  # más pegado al eje
+  theme_minimal(base_size = 14) +
+  theme(
+    plot.title = element_text(hjust = 0.5, face = "bold", size = 18), # centered title, sz and bold
+    axis.title = element_text(face = "bold"), # title ejes bold
+    axis.text = element_text(color = "black"), # col text
+    axis.line = element_line(color = "black") # mostrar líneas de ejes
+  ) +
+  labs(
+    title = "Función de Densidad", x = "x - Horas", 
+    y = "f(x) - Probabilidad de Funcionamiento"
+  )
+
+F.x.4 <- integrate(f.x.4, lower = 0, upper = 1.5)$value;F.x.4
+
+# Encontrar F(x)
+cat("b) La función de a hasta x de F(x) es: ")
+```
+
+          { (x**2)/2    , 0<= x <= 1
+    F(x): {
+          { x - 1       , 1 < x <= 1.5
+          
+```{r echo=FALSE,  fig.align="center"}
+eje4c <- integrate(f.x.4, lower = 0.5, upper = 1.2)$value; eje4c
+cat("c) La probabilidad P(0.5 ≤ X ≤ 1.2) es:", eje4c)
+```
+
+
+## Quinto punto 
+
+***Enunciado 5: ***  El tiempo de falla (en cientos de horas) para un transistor es una variable aleatoria Y con función de distribución dada abajo.
+
+$$
+F(y) = \begin{cases}
+0, & y < 0 \\
+1 - e^{-y^2}, & y \geq 0
+\end{cases}
+$$
+a. Dibuje F(y)
+b. Dibuje f(y)
+c. Encuentre la probabilidad de que el transistor opere durante al menos 200 horas.
+
+```{r echo=FALSE,  fig.align="center"}
+f.x.5 <- function(x){
+  ifelse(x >= 0, 1-exp(-(x**2)), 0)
+}
+
+cat("a) Dibuje F(y)")
+x.5 <- seq(0,100, by = 0.1)
+y.5 <- sapply(x.5, f.x.5)
+
+df4 <- data.frame(x.5,y.5)
+ggplot(df4, aes(x = x.5, y = y.5)) +
+  geom_line(color = "red3", size = 1) +
+  scale_x_continuous(expand = c(0, 0), limits = c(0, 100), breaks = seq(0, 100, by = 10)) +  # evitar espacio extra
+  scale_y_continuous(expand = c(0, 0), limits = c(0, max(df4$y.5)*1.1)) +  # más pegado al eje
+  theme_minimal(base_size = 14) +
+  theme(
+    plot.title = element_text(hjust = 0.5, face = "bold", size = 18), # centered title, sz and bold
+    axis.title = element_text(face = "bold"), # title ejes bold
+    axis.text = element_text(color = "black"), # col text
+    axis.line = element_line(color = "black") # mostrar líneas de ejes
+  ) +
+  labs(
+    title = "Función de distribución Acumulativa", x = "t - En cientos de horas", 
+    y = "F(y)"
+  )
+
+cat("b) Dibuje f(y)")
+library(Deriv)
+fd.5 <- Deriv(f.x.5, "x"); fd.5
+xd.5 <- seq(0,4, by = 0.01)
+yd.5 <- sapply(xd.5, fd.5)
+
+df10 <- data.frame(xd.5,yd.5)
+ggplot(df10, aes(x = xd.5, y = yd.5)) +
+  geom_line(color = "#9932CC", size = 1) +
+  scale_x_continuous(expand = c(0, 0), limits = c(0, 4), breaks = seq(0, 4, by = 0.4)) +  # evitar espacio extra
+  scale_y_continuous(expand = c(0, 0), limits = c(0, max(df10$yd.5)*1.1)) +  # más pegado al eje
+  theme_minimal(base_size = 14) +
+  theme(
+    plot.title = element_text(hjust = 0.5, face = "bold", size = 18), # centered title, sz and bold
+    axis.title = element_text(face = "bold"), # title ejes bold
+    axis.text = element_text(color = "black"), # col text
+    axis.line = element_line(color = "black") # mostrar líneas de ejes
+  ) +
+  labs(
+    title = "Función de probabilidad", x = "t - En cientos de horas", 
+    y = "f(y)"
+  )
+cat("c) Encuentre la probabilidad de que el transistor opere durante al menos 200 horas.")
+fc.5 <- integrate(fd.5, lower = 2, upper = Inf)$value; fc.5
+```
+
+## Sexto punto
+
+***Enunciado 6: ***  La proporción de tiempo X en la que un robot industrial está en operación durante una semana de 40 horas es una variable aleatoria con función de densidad dada abajo 
+
+$$
+f(x) = \begin{cases}
+  2x, & 0 \leq x \leq 1 \\
+  0, & \text{en otro punto}
+\end{cases}
+$$
+
+
+a. Encuentre F(x) y dibújela.
+b. Para el robot motivo de estudio, la utilidad Y para una semana está dada por Y = 200X – 60. Encuentre V(Y) 
+
+```{r echo=FALSE,  fig.align="center"}
+
+f.x.6 <- function(x){
+  ifelse(x >= 0, ifelse(x < 1, 2*x, 0), 0)
+}
+
+cat("a) Encuentre F(x) y dibújela.")
+cat("F(x) = x^2")
+x.6 <- seq(0,1.1, by = 0.01)
+y.6 <- sapply(x.6, f.x.6)
+
+df3 <- data.frame(x.6,y.6)
+ggplot(df3, aes(x = x.6, y = y.6)) +
+  geom_line(color = "skyblue4", size = 1) +
+  scale_x_continuous(expand = c(0, 0), limits = c(0, 1.1), breaks = seq(0, 1.1, by = 0.1)) +  # evitar espacio extra
+  scale_y_continuous(expand = c(0, 0), limits = c(0, max(df3$y.6)*1.1)) +  # más pegado al eje
+  theme_minimal(base_size = 14) +
+  theme(
+    plot.title = element_text(hjust = 0.5, face = "bold", size = 18), # centered title, sz and bold
+    axis.title = element_text(face = "bold"), # title ejes bold
+    axis.text = element_text(color = "black"), # col text
+    axis.line = element_line(color = "black") # mostrar líneas de ejes
+  ) +
+  labs(
+    title = "Función de Densidad", x = "x - Horas", 
+    y = "f(x) - Probabilidad de Funcionamiento"
+  )
+
+# Encontrar
+cat("b) Para el robot motivo de estudio, la utilidad Y para una semana está dada por Y = 200X – 60. Encuentre V(Y) ")
+
+f.x.6E <- function(x){
+  return(x*(2*x))
+}
+
+f.x.6E2 <- function(x){
+  return((x**2)*(2*x))
+}
+
+#Valor esperado para X
+e.x.6 <- integrate(f.x.6E, lower = 0, upper = 1)$value
+
+e.x.6_2 <- integrate(f.x.6E2, lower = 0, upper = 1)$value
+#Varianza para X
+var <- e.x.6_2 - e.x.6**2
+
+cat("Para hallar entonces el valor de la varianza de Y, tenemos que reemplazar la 
+    el valor esperado de X en la ecuación Y = 200X - 60")
+
+#Valor esperado para Y
+e.y.6 <- 200 * e.x.6 - 60
+## (200X - 60)**2 -> E(Y**2)= 40000E(X**2)−24000E(X)+3600
+e.y.6_2 <- ((200**2) * e.x.6_2) - (2*60*200*e.x.6) + (60**2)
+varY <- e.y.6_2 - (e.y.6**2)
+cat("La varizanza de Y será entonces: ", varY)
+```

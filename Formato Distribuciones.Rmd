@@ -1,0 +1,178 @@
+---
+title: "Formato Distribuciones"
+author: "Julian Velandia"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Binomial
+
+***Enunciado: *** De acuerdo con un artículo de una revista importante, aproximadamente 30% de todas las fallas de operación en las tuberías de plantas químicas son ocasionadas por errores del operador.
+
+  1. ¿Cuál es la probabilidad de que de las siguientes 20 fallas en las tuberías al menos 10 se deban a un error del operador?
+  2. ¿Cuál es la probabilidad de que no más de 4 de 20 fallas se deban a un error del operador?
+
+```{r}
+n <- 20 # número de fallas
+
+p <- 0.3 # probabilidad de éxito (la falla es ocasionada por el operador)
+
+x <- 0:20 # valores que puede tomar x
+
+# P(X>=10)
+
+sol1 <- pbinom(q = 9,size = n, prob = p,lower.tail = FALSE)
+cat("P(X>=10) = ",sol1)
+
+#P(X<=4)
+
+sol2 <- pbinom(q = 4,size = n, prob = p,lower.tail = TRUE)
+cat("P(X<=4) = ",sol2)
+
+#para la grafica
+
+f.1 <- dbinom(x,size = n, prob = p)
+
+df1 <- data.frame(x, f.1)
+
+ggplot(df1, aes(x, f.1))+
+  geom_point(col="darkblue")+
+  geom_segment(x = x, xend=x, y = 0, yend=f.1,linetype = "dashed", col="brown")+
+  labs(title = "Función de probabilidad de fallas ocasionadas por un operador")
+```
+
+## Hipergeometrica
+
+***Enunciado: *** Para evitar la detección en la aduana, un viajero coloca 6 comprimidos con narcóticos en una botella que contiene 9 píldoras de vitamina que aparentemente son similares. Si el oficial de la aduana selecciona 3 de las tabletas al azar para su análisis, ¿cuál es la probabilidad de que el viajero sea arrestado por posesión ilegal de narcóticos?
+
+***Solución: ***
+```{r echo=FALSE,  fig.align="center"}
+m <- 6
+
+n <- 9
+
+k <- 3
+
+# P(X>=1) = P(X>0)
+#Una forma
+## 1- P(x<1)
+s <- phyper(q = 0, m = 6, n = 9, k = 3)
+1-s
+#Otra forma
+sol3 <- phyper(q = 0,m = m, n = n, k = k, lower.tail = FALSE)
+cat("La probabilidad de que el viajero sea arrestado es de: ", sol3)
+
+#grafica
+x <- c(max(0,k-n):min(k,m))
+
+f.3 <- dhyper(x = x, m = m, n = n, k = k)
+df3 <- data.frame(x, f.3)
+
+ggplot(df3, aes(x, f.3)) +
+  geom_point(col="darkblue") +
+  geom_segment(x = x, xend = x, y = 0, yend = f.3, linetype = "dashed", col = "purple")+
+  labs(title = "Gráfica de la probabilidad de encontrar la droga")
+```
+## Poissen
+
+***Enunciado: *** En cierto crucero ocurren, en promedio, 3 accidentes de tránsito al mes. ¿Cuál es la probabilidad de que en cualquier determinado mes en este crucero
+
+  1. ocurran exactamente 5 accidentes?
+  2. ocurran menos de 3 accidentes?
+  3. ocurran al menos 2 accidentes?
+
+***Solución: ***
+
+```{r echo=FALSE, fig.align="center"}
+l <- 3
+
+sol6 <- dpois(5,lambda = l)
+cat("La probabilidad de que ocurran 5 accidentes es:", sol6)
+
+sol6 <- ppois(2,lambda = l)
+cat("La probabilidad de que ocurran menos de 3 accidentes es:", sol6)
+
+sol6 <- ppois(1,lambda = l, lower.tail = FALSE)
+cat("La probabilidad de que ocurran al menos 2 accidentes es:", sol6)
+
+##Grafica
+x <- 0:10
+f.p <- dpois(x,lambda = l)
+
+df.p <- data.frame(x,f.p)
+
+ggplot(df.p, aes(x, f.p))+
+  geom_point(col = "darkblue")+
+  geom_segment(x = x, xend = x, y = 0, yend = f.p, linetype = "dashed", col="skyblue")+
+  labs(title = "Gráfica de la función de probabilidad de una Poisson")
+```
+# Continuas
+
+## Uniforme
+
+***Enunciado: *** Ejemplo 6.1: Suponga que el tiempo máximo que se puede reservar una sala de conferencias grande de cierta empresa son cuatro horas. Con mucha frecuencia 
+tienen conferencias extensas y breves. De hecho, se puede suponer que la duración X de una conferencia tiene una distribución uniforme en el intervalo [0, 4]
+
+```{r echo=FALSE, fig.align="center"}
+
+## P(X >= 2)
+sol7 <- punif(q = 2,min = 0,max = 4,lower.tail = FALSE)
+cat("La probabilidad de que la duración de una conferencia sea de más de 2 horas es", sol7)
+
+##Grafica
+x <- seq(0, 4, by = 0.01)
+f.p <- dunif(x, min = 0, max = 4)
+
+df.u <- data.frame(x,f.p)
+
+ggplot(df.u,aes(x,f.p)) +
+  geom_line(col='darkblue') +
+  geom_segment(x = 0,y = 0,xend = 0,yend = dunif(0, min = 0, max = 4), linetype='dashed', col="brown") +
+  geom_segment(x = 4,y = 0,xend = 4,yend = dunif(4, min = 0, max = 4), linetype='dashed', col = "brown") +
+  geom_ribbon(data = subset(df.u, x >= 2),
+                         aes(x = x, ymin = 0, ymax = f.p),
+                         inherit.aes = FALSE,
+                         fill = "purple4", alpha = 0.6) +
+  labs(title = "Distribución Uniforme con a = 0 y b = 4",subtitle =  "P(X > 2)")
+```
+
+## Normal
+
+***Enunciado: *** Simulación de las estaturas de las estudiantes mujeres de la facultad de ingeniería
+
+***Solución: ***
+```{r echo=FALSE, fig.align="center"}
+
+## P(X = 20)
+sol6 <- dnorm(180.5, mean = 168.5, sd = 5)
+cat("La probabilidad de que la duración de una conferencia sea de más de 2 horas es", sol6)
+
+## P(X < 180.5)
+sol8 <- pnorm(180.5, mean = 168.5, sd = 5)
+cat("La probabilidad de que la persona mida menos de 180.5 =", sol8)
+
+## P(X > 180.5)
+sol9 <- 1 - pnorm(180.5, mean = 168.5, sd = 5)
+cat("La probabilidad de que la persona mida mas de 180.5 = ", sol9)
+
+pnorm(180.5, mean = 168.5, sd = 5, lower.tail = FALSE)
+
+##Grafica
+x. <- rnorm(n = 1000,mean = 168.5,sd = 5)   ## Genero 1000 datos aleatorios
+y. <- dnorm(x = x., mean = 168.5, sd = 5)   ## Aplico la función normal
+df1 <- data.frame(x.,y.)
+
+ggplot(df1, aes(x=x., y=y.))+
+  geom_line(col = "skyblue4") +
+  geom_segment(x = 168.5, xend= 168.5, y = 0, yend = dnorm(168.5, mean = 168.5, sd = 5), linetype = "dashed", col = "green3")+
+  labs(title = "Grafica de una normal, media = 168.5, sd = 5") +
+  theme_minimal()
+```
+
+
+## Exponencial
+
