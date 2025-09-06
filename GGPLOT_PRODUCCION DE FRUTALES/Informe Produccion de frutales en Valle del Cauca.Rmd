@@ -1,0 +1,216 @@
+---
+title: "PRODUCCION DE FRUTALES EN EL VALLE DEL CAUCA"
+author: "Paola Andrea Neuta Bernal"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+```{r echo=FALSE,  fig.align="center", message=FALSE}
+library(readxl)
+
+base <- read.csv("Produccion_de_frutales_en_el_Valle_del_Cauca_20250409.csv")
+#View(base)
+```
+
+##  INFORME DE PRODUCCIÓN DE FRUTALES EN EL VALLE
+
+En este informe se realiza un analisis exploratorio de la base de datos Produccion_de_frutales_en_el_ valle_del_cauca_20250409 para poder darle sentido a los datos recolectados acerca de Producción de frutas en el valle del cauca en un periodo de 23 años, entre el 2000 y el 2022.
+
+### Introducción
+
+La región del Valle del Cauca, ubicada en el suroccidente de Colombia, ha sido históricamente reconocida por su riqueza agroecológica y su papel fundamental en la economía agrícola del país. Gracias a su diversidad climática, suelos fértiles y disponibilidad hídrica, el departamento se ha consolidado como un importante centro de producción de cultivos de exportación. Dentro de este panorama, los frutales han cobrado un protagonismo creciente desde inicios del siglo XXI, no solo por su valor nutricional y económico, sino también por su potencial en mercados nacionales e internacionales.
+
+Desde el año 2000, se han observado importantes transformaciones en las dinámicas de producción frutícola del Valle del Cauca. Estas transformaciones responden a diversos factores como el cambio climático, la tecnificación del agro, la política agrícola nacional, las dinámicas del mercado global y el fortalecimiento de iniciativas campesinas y agroindustriales. Cultivos como el mango, el aguacate, la piña, el maracuyá, la guanábana y la papaya han tomado fuerza en la región, destacándose por su rentabilidad, adaptabilidad y creciente demanda. A la par, se han desarrollado proyectos de investigación y extensión rural que han permitido mejorar las prácticas agrícolas y fortalecer los encadenamientos productivos.
+
+Este documento busca explorar, a partir de una base de datos recopilada, la evolución de la producción de diferentes frutales en el Valle del Cauca desde el año 2000. Esta información permitirá comprender mejor el papel que juegan los frutales en el desarrollo rural de la región y ofrecerá insumos valiosos para la toma de decisiones en políticas públicas, inversión agrícola y planificación territorial.
+
+***Preguntas:*** ¿Cuál es el municipio que produce más toneladas de fruta? ¿Cuál es la fruta que más se ha producido en mayor cantidad de toneladas a nivel general y del municipio? ¿Cuál ha sido el año con mayor y menor producción del platano y del banano?
+
+
+### Preparación de los datos
+
+Para realizar correctamente el analisis es necesario revisar si los datos se encuentran con errores o existen datos nulos, con el objetivo de tener una base de datos limpia.
+
+```{r echo=FALSE,  fig.align="center", message=FALSE, warning = FALSE}
+cat("La base contiene", nrow(base), "filas")
+cat("La base contiene", ncol(base), "columnas, las cuales son:")
+cat(names(base))
+#s <- summary(base)
+#s2 <- str(base)
+cat("La base de datos se encuentra con una cantidad de datos nulos de:",sum(is.na(base)))
+#colSums(is.na(base))
+#unique(base$Cultivo)
+```
+
+Además de esto se logra evidenciar que cada columna está asociada correctamente con su respectivo tipo de dato, es decir, las columnas como subregión, municipio, cultivo y ciclo son del tipo de cadena y columnas como año de tipo entero o toneladas de tipo numeric.
+
+### Análisis de los datos
+
+```{r echo=FALSE,  fig.align="center", message=FALSE}
+##Algunas busquedas en la base de datos usando dplyr
+library(dplyr)
+##Cultivo con mayor y menor cantidad de filas en la base
+b1 <- base %>% count(Cultivo) %>% filter(n == max(n) | n == min(n))
+##Cinco cultivos con mayor cantidad de filas en la base
+b2 <- base %>% count(Cultivo, sort = TRUE) %>% slice_head(n = 5)
+##Cantidad de filas no repetidas entre año, municipio y subregion para el cultivo de Plátano
+b3 <- base %>% filter(Cultivo == "Plátano") %>% distinct(año, Municipio, Subregion) %>% count()
+##Base de datos del cultivo de Plátano en el municipio de Dagua
+b4 <- base %>% filter(Cultivo == "Plátano" & Municipio == "Dagua")
+
+```
+
+```{r echo=FALSE,  fig.align="center", message=FALSE}
+library(dplyr)
+##Cantidad de toneladas de frutas por munipios (10 con mayor cantidad de toneladas)
+toneladasMunicipios <- base %>%
+  filter(!Cultivo %in% c("Melón", "Sandía")) %>%
+  group_by(Municipio) %>%
+  summarise(Total_toneladas = sum(Produccion_toneladas)) %>%
+  arrange(desc(Total_toneladas)) %>%
+  slice_head(n = 10)
+
+##Cantidad de toneladas por cultivos de ciclo anual
+toneladasCultivos <- base %>%
+  filter(Ciclo == "Anual") %>%
+  group_by(Cultivo) %>%
+  summarise(Total_toneladas = sum(Produccion_toneladas)) %>%
+  arrange(desc(Total_toneladas)) %>%
+  slice_head(n = 10) %>%
+  mutate(porcentage = Total_toneladas/sum(Total_toneladas) * 100, label = paste0(Cultivo, "(", round(porcentage, 1), "%)"))
+
+##Diez cultivos con mayor cantidad de toneladas en el municipio con mayor producción
+ToneladasMunicipioMayorProd <- base %>% filter(Municipio == "Sevilla") %>%
+  group_by(Cultivo) %>%
+  summarise(Total_toneladas = sum(Produccion_toneladas)) %>%
+  arrange(desc(Total_toneladas)) %>%
+  slice_head(n = 5) %>%
+  mutate(porcentage = Total_toneladas/sum(Total_toneladas) * 100, label = paste0(Cultivo, "(", round(porcentage, 1), "%)"))
+
+##Producción de Plátano por año
+Platano <- base %>% filter(Cultivo == "Plátano") %>%
+  group_by(año) %>% 
+  summarise(Total_toneladas = sum(Produccion_toneladas))
+
+##Producción de Banano por año
+Banano <- base %>% filter(Cultivo == "Banano") %>%
+  group_by(año) %>% 
+  summarise(Total_toneladas = sum(Produccion_toneladas))
+
+#Historico
+Platano <- Platano %>%
+  mutate(Cultivo = "Plátano")
+Banano <- Banano %>%
+  mutate(Cultivo = "Banano")
+historico <- bind_rows(Platano, Banano)
+
+```
+
+```{r echo=FALSE,  fig.align="center", message=FALSE, warning=FALSE}
+library(ggplot2)
+## GRAFICA 1
+g1 <- ggplot(toneladasMunicipios, aes(x=reorder(Municipio, -Total_toneladas), y=Total_toneladas)) +
+  geom_bar(stat = "identity", fill = c("lightblue", "lightyellow", "lightgreen", "lightpink", "aquamarine", "mistyrose", "lightcyan", "lightsalmon", "lavender", "honeydew"), colour="black") +
+  ggtitle("Los 10 municipios con mayor producción de cultivos en toneladas") +
+  xlab("Municipio") +
+  ylab("Cantidad de toneladas") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+## GRAFICA 2
+
+colores_frutas <- c(
+  "Plátano"    = "#FFF68f",  # amarillo plátano
+  "Cítricos"   = "#FFDAB9",  # naranja
+  "Piña"       = "#FFD700",  # dorado
+  "Banano"     = "#FFFACD",  # amarillo claro
+  "Papaya"     = "#FF8C00",  # naranja oscuro
+  "Chontaduro" = "#FF4500",  # naranja quemado
+  "Vid"        = "#800080",  # morado uva
+  "Aguacate"   = "#228B22",  # verde oscuro
+  "Maracuyá"   = "#e5c633",  # amarillo verdoso
+  "Guayaba"    = "#FFB6C1",  # rosado claro
+  "Naranja"    = "#FFA500"   # naranja
+)
+
+g2 <- ggplot(toneladasCultivos, aes(x="", y = Total_toneladas, fill = Cultivo)) +
+  geom_bar(stat = "identity", width = 1, colour = "grey30", size = 0.5) +
+  coord_polar(theta = "y") +
+  labs(title = "Distribución de los 10 cultivos de mayor producción") +
+  theme_void() +
+  scale_fill_manual(values = colores_frutas)
+
+## GRAFICA 3
+library(tibble)
+labels_cultivo <- ToneladasMunicipioMayorProd %>%
+  distinct(Cultivo, label) %>%
+  deframe()
+
+g3 <- ggplot(ToneladasMunicipioMayorProd, aes(x="", y = Total_toneladas, fill = Cultivo)) +
+  geom_bar(stat = "identity", width = 1, colour = "grey30", size = 0.5) +
+  coord_polar(theta = "y") +
+  labs(title = "Distribución de los 5 cultivos de mayor producción en el municipo de Sevilla") +
+  theme_void() +
+  scale_fill_manual(values = colores_frutas, labels = labels_cultivo)
+
+## GRAFICA 4
+library(scales)
+g4 <- ggplot(historico, aes(x = año, y = Total_toneladas, color = Cultivo)) +
+  geom_line(size = 1.5) +
+  scale_color_manual(values = c("Plátano" = "gold", "Banano" = "green3")) +
+  scale_y_continuous(labels = label_comma()) +
+  labs(
+    title = "Producción de Plátano y Banano por año desde 2000 hasta 2022",
+    x = "Año",
+    y = "Toneladas",
+    color = "Cultivo"
+  ) +
+  theme_minimal()
+
+```
+
+Para el primer caso se ha decido seleccionar unicamente los 10 municipios de Valle de Cauca con mayor producción de frutales en toneladas, ya que nos interesa encontrar cúal es el municipio con mayor producción.
+```{r grafico1, echo=FALSE,  fig.align="center", message=FALSE}
+g1
+```
+Como se puede ver, el municipio con mayor producción es Sevilla (1.805.712 toneladas), seguido de Calcedonia, Dagua y Buenaventura. Esto representa una oportunidad de inversión agrícola en estos municipios.
+
+Se necesita también conocer el cultivo con mayor producción en el Valle del Cauca. Para ello podemos seleccionar 10 de los cultivos de mayor producción y basarnos unicamente en estos 10 cultivos para hacer una comparaación usando un grafico de torta.
+```{r grafico2, fig.width=4.5, fig.height=3, echo=FALSE,  fig.align="center", message=FALSE}
+g2
+```
+Gracias a esta gráfica se puede evidenciar que dentro de los 10 cultivos de mayor producción, el cultivo que más destaca es el Plátano. Sin embargo, los citricos y la piña representan también un valor considerable para el Valle del Cauca.
+
+Conociendo que Sevilla es el municipio con mayor producción, nos gustaría saber cuáles son los 5 cultivos que destacan en la zona, así que podemos realizar otro grafico de torta para este municipio en específico.
+
+```{r grafico3, fig.width=4.5, fig.height=3, echo=FALSE,  fig.align="center", message=FALSE}
+g3
+```
+Al igual que en la gráfica general de cultivos por nivel de producción encontramos que el cultivo con mayor rendimiento es el Plátano. No obstante, en este caso ya no encontramos a la piña como una fruta predominante en la zona, sino más bien el Banano toma un papel importante en este municipio.
+
+Finalmente, vamos a evaluar el rendimiento historico de dos cultivos importante en el Valle de Cauca, los cuales como hemos podido ver son el Plátano y el Banano.
+```{r grafico4, echo=FALSE,  fig.align="center", message=FALSE}
+g4
+```
+En este caso, evidentemente el Plátano ha tenido un gran crecimiento desde el año 2000 al 2022. Presentado su pico con alrededor de 350.000 toneladas en el año 2013. Mientras que por otro lado encontramos que los maximos del Banano se ha encontrado alrededor de las 100.000 toneladas. Encontramos que el mayor crecimiento del Plátano fue entre el año 2007 y el 2013, desde ese momento, este cultivo ha presentado algunos maximos y minimos locales, que muestran la variabilidad de la producción. Sin embargo si estimamos una media para los ultimos años, esta media se ubicaría al rededor de los 300.000 toneladas de producción. En cambio, el banano ha tenido un crecimiento mucho más lento a comparación del Plátano y para los ultimos 5 años ha mantenido una producción de alrededor de 75.000 toneladas.
+
+
+## Conclusiones
+
+- El análisis exploratorio de la base de datos evidenció una tendencia clara en la producción frutícola del Valle del Cauca, destacando al municipio de Sevilla como el principal productor de frutas durante el período 2000–2022, con más de 1.8 millones de toneladas. Este hallazgo posiciona a Sevilla como un punto estratégico para la inversión agrícola y el desarrollo de infraestructura agroindustrial. El plátano sobresale ampliamente como la fruta con mayor volumen de producción en toda la región, tanto a nivel general como dentro del mismo municipio de Sevilla. 
+
+
+- A nivel temporal, el plátano mostró un crecimiento significativo entre 2007 y 2013, alcanzando su punto máximo en 2013, mientras que el banano ha mantenido una producción más estable y moderada a lo largo del tiempo. Este comportamiento permite inferir que los cultivos de plátano y banano son pilares de la economía frutícola vallecaucana y deben ser objeto de atención prioritaria en términos de políticas públicas, manejo agronómico y sostenibilidad.
+
+- Con base en los hallazgos del estudio, es recomendable que se tomen deciones, tanto en el ámbito público como privado, para enfocar esfuerzos en fortalecer las cadenas productivas del plátano, citricos, piña y banano, especialmente en municipios líderes como Sevilla. Esto incluye mejorar las vías de acceso, fomentar la asociatividad de productores, facilitar el acceso a créditos rurales y tecnificar los sistemas de producción para garantizar la sostenibilidad del recurso suelo y el uso eficiente del agua. Además, se sugiere establecer sistemas de monitoreo permanente de datos agrícolas para anticipar variaciones del clima, plagas u otros factores
+
+## Referencias
+
+- Federación Nacional de Cultivadores de Frutas y Hortalizas (FEDEFRUTA). (2020). Informe técnico sobre la producción frutícola en Colombia. 
+https://www.fedefruta.org.co
+
+- Ministerio de Agricultura y Desarrollo Rural de Colombia. (2022). Anuario estadístico del sector agropecuario colombiano. 
+https://www.minagricultura.gov.co
+
+- Gobernación del Valle del Cauca. (2021). Plan de desarrollo departamental 2020–2023: Valle Invencible. 
+https://www.valledelcauca.gov.co
