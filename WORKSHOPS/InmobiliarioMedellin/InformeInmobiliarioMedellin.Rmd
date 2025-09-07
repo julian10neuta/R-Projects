@@ -1,6 +1,6 @@
 ---
 title: "Taller Inmobiliario Medellin"
-author: "Paola Andrea Neuta Bernal"
+author: "Julian Velandia"
 date: "`r Sys.Date()`"
 output:
   pdf_document:

@@ -1,13 +1,9 @@
 ---
 title: "Estudio De Caso"
-author: "Paola Neuta"
+author: "Julian Velandia"
 date: "`r Sys.Date()`"
 output: html_document
 ---
-
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
 
 ## Taller estudio de caso jugadores de futbol
 
@@ -20,7 +16,7 @@ library(ggplot2)
 library(lmtest)
 library(car)
 
-baseDatos <- read.csv("D:/Documentos/RStudio Files/Workshops/EstudioDeCasoFutbol/players_15.csv")
+baseDatos <- read.csv("D:/Documentos/RStudio Files/RCodesUnal/WORKSHOPS/EstudioDeCasoFutbol/players_15.csv")
 
 baseDatos <- select(baseDatos, -release_clause_eur, -nation_jersey_number, -gk_kicking,
                     -gk_positioning, -gk_diving, -gk_reflexes, -gk_handling, -gk_speed, 
