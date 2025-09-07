@@ -1,13 +1,9 @@
 ---
-title: "Distribuciones y Prueba de HIpotesis"
-author: "Paola Neuta"
+title: "Distribuciones y Prueba de Hipotesis"
+author: "Julian Velandia"
 date: "`r Sys.Date()`"
 output: pdf_document
 ---
-
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
 
 ## Taller de distribuciones, normalidad y pruebas de hipotesis
 
