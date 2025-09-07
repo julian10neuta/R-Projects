@@ -1,0 +1,61 @@
+/* Cambia fuente principal a Times New Roman */
+body {
+  font-family: "Times New Roman", serif;
+  font-size: 16px;
+  line-height: 1.6;
+  cursor: url("https://icons.iconarchive.com/icons/giannis-zographos/south-american-football-club/32/Millonarios-icon.png"), auto;
+}
+
+/* Títulos subrayados y bien visibles */
+h1, h2, h3 {
+  border-bottom: 2px solid #00bfff;
+  padding-bottom: 6px;
+  margin-top: 30px;
+  color: #00bfff;
+}
+
+/* Código con fondo oscuro suave */
+pre, code {
+  background-color: #2e2e2e !important;
+  color: #f8f8f2;
+  padding: 8px;
+  border-radius: 6px;
+  font-family: "Courier New", monospace;
+}
+
+/* Código en línea */
+code {
+  padding: 2px 4px;
+}
+
+/* Bloques de código */
+pre {
+  overflow-x: auto;
+}
+
+/* Imágenes y gráficas con borde tenue */
+img {
+  border: 2px solid #444;
+  padding: 5px;
+  background-color: #2a2a2a;
+  border-radius: 6px;
+}
+
+/* Tabla de contenido flotante */
+#TOC {
+  background-color: #222 !important;
+  border: 1px solid #444;
+  border-radius: 6px;
+  padding: 10px;
+  color: #eee;
+}
+
+/* Enlaces dentro del documento */
+a {
+  color: #66ccff;
+}
+
+a:hover {
+  color: #ffffff;
+}
+
